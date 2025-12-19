@@ -1,4 +1,4 @@
-module github.com/steipete/foodoracli
+module github.com/steipete/foodcli
 
 go 1.24.0
 

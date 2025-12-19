@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/steipete/foodoracli/internal/foodora"
-	"github.com/steipete/foodoracli/internal/version"
+	"github.com/steipete/foodcli/internal/foodora"
+	"github.com/steipete/foodcli/internal/version"
 )
 
 func newOrdersCmd(st *state) *cobra.Command {
@@ -72,10 +72,10 @@ func newOrderCmd(st *state) *cobra.Command {
 
 func newAuthedClient(st *state) (*foodora.Client, error) {
 	if st.cfg.BaseURL == "" {
-		return nil, errors.New("missing base_url (run `foodoracli config set --country ...`)")
+		return nil, errors.New("missing base_url (run `foodcli config set --country ...`)")
 	}
 	if !st.cfg.HasSession() {
-		return nil, errors.New("not logged in (run `foodoracli login ...`)")
+		return nil, errors.New("not logged in (run `foodcli login ...`)")
 	}
 
 	_, cookie := st.cookieHeaderForBaseURL()
@@ -85,7 +85,7 @@ func newAuthedClient(st *state) (*foodora.Client, error) {
 		ua = prof.UserAgent
 	}
 	if ua == "" {
-		ua = "foodoracli/" + version.Version
+		ua = "foodcli/" + version.Version
 	}
 
 	c, err := foodora.New(foodora.Options{

@@ -1,4 +1,4 @@
-# foodoracli
+# foodcli
 
 Go CLI: login to foodora + show active order status.
 
@@ -8,7 +8,7 @@ Status: early prototype. API details reverse-engineered from an Android XAPK (`2
 
 ```sh
 go test ./...
-go build ./cmd/foodoracli
+go build ./cmd/foodcli
 ```
 
 ## Configure country / base URL
@@ -16,39 +16,39 @@ go build ./cmd/foodoracli
 Bundled presets (from the APK):
 
 ```sh
-./foodoracli countries
-./foodoracli config set --country HU
-./foodoracli config set --country AT
-./foodoracli config show
+./foodcli countries
+./foodcli config set --country HU
+./foodcli config set --country AT
+./foodcli config show
 ```
 
 Manual:
 
 ```sh
-./foodoracli config set --base-url https://hu.fd-api.com/api/v5/ --global-entity-id NP_HU --target-iso HU
+./foodcli config set --base-url https://hu.fd-api.com/api/v5/ --global-entity-id NP_HU --target-iso HU
 ```
 
 ## Login
 
-`oauth2/token` needs a `client_secret` (the app fetches it via remote config). `foodoracli` auto-fetches it on first use and caches it locally.
+`oauth2/token` needs a `client_secret` (the app fetches it via remote config). `foodcli` auto-fetches it on first use and caches it locally.
 
 Optional override (keeps secrets out of shell history):
 
 ```sh
 export FOODORA_CLIENT_SECRET='...'
-./foodoracli login --email you@example.com --password-stdin
+./foodcli login --email you@example.com --password-stdin
 ```
 
-If MFA triggers and you're running in a TTY, `foodoracli` prompts for the OTP code and retries automatically. Otherwise it stores the MFA token locally and prints a safe retry command (`--otp <CODE>`).
+If MFA triggers and you're running in a TTY, `foodcli` prompts for the OTP code and retries automatically. Otherwise it stores the MFA token locally and prints a safe retry command (`--otp <CODE>`).
 
 ### Client headers
 
-Some regions (e.g. Austria/mjam `mj.fd-api.com`) expect app-style headers like `X-FP-API-KEY` / `App-Name` / app `User-Agent`. `foodoracli` uses an app-like header profile for `AT` by default.
+Some regions (e.g. Austria/mjam `mj.fd-api.com`) expect app-style headers like `X-FP-API-KEY` / `App-Name` / app `User-Agent`. `foodcli` uses an app-like header profile for `AT` by default.
 
 For corporate flows, you can override the OAuth `client_id`:
 
 ```sh
-./foodoracli login --email you@example.com --client-id corp_android --password-stdin
+./foodcli login --email you@example.com --client-id corp_android --password-stdin
 ```
 
 ### Cloudflare / bot protection
@@ -58,7 +58,7 @@ Some regions (e.g. Austria/mjam `mj.fd-api.com`) may return Cloudflare HTML (`HT
 Use an interactive Playwright session (you solve the challenge in the opened browser window; no auto-bypass):
 
 ```sh
-./foodoracli login --email you@example.com --password-stdin --browser
+./foodcli login --email you@example.com --password-stdin --browser
 ```
 
 Prereqs: `node` + `npx` available. First run may download Playwright + Chromium.
@@ -66,11 +66,11 @@ Prereqs: `node` + `npx` available. First run may download Playwright + Chromium.
 ## Orders
 
 ```sh
-./foodoracli orders
-./foodoracli orders --watch
-./foodoracli history
-./foodoracli history --limit 50
-./foodoracli order <orderCode>
+./foodcli orders
+./foodcli orders --watch
+./foodcli history
+./foodcli history --limit 50
+./foodcli order <orderCode>
 ```
 
 ## Safety

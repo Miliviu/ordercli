@@ -36,6 +36,14 @@ func DefaultPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	return filepath.Join(dir, "foodcli", "config.json"), nil
+}
+
+func LegacyPath() (string, error) {
+	dir, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
 	return filepath.Join(dir, "foodoracli", "config.json"), nil
 }
 

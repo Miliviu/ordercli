@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/steipete/foodoracli/internal/firebase"
+	"github.com/steipete/foodcli/internal/firebase"
 )
 
 type resolvedSecret struct {

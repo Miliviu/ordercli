@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/steipete/foodoracli/internal/foodora"
+	"github.com/steipete/foodcli/internal/foodora"
 )
 
 //go:embed login.mjs
@@ -70,7 +70,7 @@ func OAuthTokenPassword(ctx context.Context, req foodora.OAuthPasswordRequest, o
 		return foodora.AuthToken{}, nil, Session{}, errors.New("browserauth: npx not found")
 	}
 
-	td, err := os.MkdirTemp("", "foodoracli-browserauth-*")
+	td, err := os.MkdirTemp("", "foodcli-browserauth-*")
 	if err != nil {
 		return foodora.AuthToken{}, nil, Session{}, err
 	}
@@ -101,7 +101,8 @@ func OAuthTokenPassword(ctx context.Context, req foodora.OAuthPasswordRequest, o
 
 	cmd := exec.CommandContext(cmdCtx, "npx", "-y", "-p", pw, "node", scriptPath) //nolint:gosec
 	cmd.Env = append(os.Environ(),
-		"FOODORACLI_OUTPUT_PATH="+outPath,
+		"FOODCLI_OUTPUT_PATH="+outPath,
+		"FOODORACLI_OUTPUT_PATH="+outPath, // legacy
 		"npm_config_loglevel=error",
 	)
 	cmd.Stdin = bytes.NewReader(b)

@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import { chromium } from 'playwright';
 
-const outputPath = process.env.FOODORACLI_OUTPUT_PATH;
+const outputPath = process.env.FOODCLI_OUTPUT_PATH || process.env.FOODORACLI_OUTPUT_PATH;
 if (!outputPath) {
-  process.stderr.write('FOODORACLI_OUTPUT_PATH missing\n');
+  process.stderr.write('FOODCLI_OUTPUT_PATH missing\n');
   process.exit(2);
 }
 

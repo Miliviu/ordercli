@@ -66,7 +66,7 @@ func newConfigSetCmd(st *state) *cobra.Command {
 				country = strings.ToUpper(country)
 				p, ok := findPreset(country)
 				if !ok {
-					return fmt.Errorf("unknown country preset %q (see `foodoracli countries`)", country)
+					return fmt.Errorf("unknown country preset %q (see `foodcli countries`)", country)
 				}
 				st.cfg.BaseURL = p.BaseURL
 				st.cfg.GlobalEntityID = p.GlobalEntityID

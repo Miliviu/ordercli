@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/steipete/foodoracli/internal/browserauth"
-	"github.com/steipete/foodoracli/internal/foodora"
-	"github.com/steipete/foodoracli/internal/version"
+	"github.com/steipete/foodcli/internal/browserauth"
+	"github.com/steipete/foodcli/internal/foodora"
+	"github.com/steipete/foodcli/internal/version"
 	"golang.org/x/term"
 )
 
@@ -36,7 +36,7 @@ func newLoginCmd(st *state) *cobra.Command {
 		Short: "Login via oauth2/token (email + password; optional MFA)",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if st.cfg.BaseURL == "" {
-				return errors.New("missing base_url (run `foodoracli config set --country HU` or similar)")
+				return errors.New("missing base_url (run `foodcli config set --country HU` or similar)")
 			}
 			if email == "" {
 				return errors.New("--email required")
@@ -139,7 +139,7 @@ func newLoginCmd(st *state) *cobra.Command {
 
 				if !waitForOTP || !term.IsTerminal(int(os.Stdin.Fd())) {
 					fmt.Fprintf(cmd.ErrOrStderr(), "MFA triggered (%s). Check your %s. Retry with:\n", mfa.Channel, mfa.Channel)
-					fmt.Fprintf(cmd.ErrOrStderr(), "  foodoracli login --email %s --otp-method %s --otp <CODE>\n", email, mfa.Channel)
+					fmt.Fprintf(cmd.ErrOrStderr(), "  foodcli login --email %s --otp-method %s --otp <CODE>\n", email, mfa.Channel)
 					fmt.Fprintf(cmd.ErrOrStderr(), "rate limit reset: %ds\n", mfa.RateLimitReset)
 					return nil
 				}
@@ -218,7 +218,7 @@ func oauthPassword(ctx context.Context, st *state, cmd *cobra.Command, browser b
 		ua = prof.UserAgent
 	}
 	if ua == "" {
-		ua = "foodoracli/" + version.Version
+		ua = "foodcli/" + version.Version
 	}
 
 	c, err := foodora.New(foodora.Options{

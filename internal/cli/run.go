@@ -23,7 +23,7 @@ func newRoot() *cobra.Command {
 	var cfgPath string
 
 	cmd := &cobra.Command{
-		Use:   "foodoracli",
+		Use:   "foodcli",
 		Short: "foodora order status CLI",
 	}
 	cmd.PersistentFlags().StringVar(&cfgPath, "config", "", "config path (default: OS config dir)")

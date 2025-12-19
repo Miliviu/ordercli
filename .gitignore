@@ -1,9 +1,9 @@
 .DS_Store
 
 # binaries
+foodcli
 foodoracli
 
 # Go
 *.test
 *.out
-

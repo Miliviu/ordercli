@@ -2,8 +2,9 @@ package cli
 
 import (
 	"errors"
+	"os"
 
-	"github.com/steipete/foodoracli/internal/config"
+	"github.com/steipete/foodcli/internal/config"
 )
 
 type state struct {
@@ -18,7 +19,25 @@ func (s *state) load() error {
 		if err != nil {
 			return err
 		}
-		s.configPath = p
+		legacy, err := config.LegacyPath()
+		if err != nil {
+			return err
+		}
+
+		if _, err := os.Stat(p); err == nil {
+			s.configPath = p
+		} else if _, err := os.Stat(legacy); err == nil {
+			cfg, err := config.Load(legacy)
+			if err != nil {
+				return err
+			}
+			s.configPath = p
+			s.cfg = cfg
+			s.dirty = true // migrate to new path on exit
+			return nil
+		} else {
+			s.configPath = p
+		}
 	}
 	cfg, err := config.Load(s.configPath)
 	if err != nil {
