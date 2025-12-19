@@ -68,6 +68,8 @@ Prereqs: `node` + `npx` available. First run may download Playwright + Chromium.
 ```sh
 ./foodoracli orders
 ./foodoracli orders --watch
+./foodoracli history
+./foodoracli history --limit 50
 ./foodoracli order <orderCode>
 ```
 

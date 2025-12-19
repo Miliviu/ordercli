@@ -69,3 +69,44 @@ type OrderStatusResponse struct {
 	Status int            `json:"status"`
 	Data   map[string]any `json:"data"`
 }
+
+type OrderHistoryRequest struct {
+	Include        string
+	Offset         int
+	Limit          int
+	PandaGoEnabled bool
+}
+
+type OrderHistoryResponse struct {
+	Status int              `json:"status"`
+	Data   OrderHistoryData `json:"data"`
+}
+
+type OrderHistoryData struct {
+	TotalCount int                `json:"total_count"`
+	Items      []OrderHistoryItem `json:"items"`
+}
+
+type OrderHistoryItem struct {
+	OrderCode             string              `json:"order_code"`
+	CurrentStatus         *OrderHistoryStatus `json:"current_status"`
+	ConfirmedDeliveryTime *OrderHistoryTime   `json:"confirmed_delivery_time"`
+	Vendor                *OrderHistoryVendor `json:"vendor"`
+	TotalValue            float64             `json:"total_value"`
+}
+
+type OrderHistoryVendor struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
+}
+
+type OrderHistoryStatus struct {
+	Code               string `json:"code"`
+	Message            string `json:"message"`
+	InternalStatusCode string `json:"internal_status_code"`
+}
+
+type OrderHistoryTime struct {
+	Date     FlexibleTime `json:"date"`
+	Timezone string       `json:"timezone"`
+}

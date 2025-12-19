@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -132,6 +133,27 @@ func (c *Client) OrderStatus(ctx context.Context, orderCode string) (OrderStatus
 	q.Set("vendor_details_variation", "Variation1")
 	path := fmt.Sprintf("tracking/orders/%s", url.PathEscape(orderCode))
 	if err := c.getJSON(ctx, path, q, &out); err != nil {
+		return out, err
+	}
+	return out, nil
+}
+
+func (c *Client) OrderHistory(ctx context.Context, req OrderHistoryRequest) (OrderHistoryResponse, error) {
+	var out OrderHistoryResponse
+	q := url.Values{}
+	include := req.Include
+	if include == "" {
+		include = "order_products,order_details"
+	}
+	q.Set("include", include)
+	q.Set("offset", strconv.Itoa(max(0, req.Offset)))
+	limit := req.Limit
+	if limit <= 0 {
+		limit = 20
+	}
+	q.Set("limit", strconv.Itoa(limit))
+	q.Set("pandago_enabled", strconv.FormatBool(req.PandaGoEnabled))
+	if err := c.getJSON(ctx, "orders/order_history", q, &out); err != nil {
 		return out, err
 	}
 	return out, nil

@@ -42,6 +42,7 @@ func newRoot() *cobra.Command {
 	cmd.AddCommand(newLoginCmd(st))
 	cmd.AddCommand(newLogoutCmd(st))
 	cmd.AddCommand(newOrdersCmd(st))
+	cmd.AddCommand(newHistoryCmd(st))
 	cmd.AddCommand(newOrderCmd(st))
 
 	return cmd
