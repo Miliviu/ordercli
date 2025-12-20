@@ -58,6 +58,7 @@ func newLoginCmd(st *state) *cobra.Command {
 				clientID = "android"
 			}
 
+			explicitClientSecret := cmd.Flags().Changed("client-secret")
 			if clientSecret == "" {
 				// Prefer cached/env; if missing, auto-fetch via Remote Config and cache.
 				sec, err := st.resolveClientSecret(cmd.Context(), clientID)
@@ -102,10 +103,20 @@ func newLoginCmd(st *state) *cobra.Command {
 				MfaToken:     mfaToken,
 			}
 
+			didRetrySecret := false
 			start := time.Now()
 			for {
 				tok, mfa, err := oauthPassword(ctx, st, cmd, browser, req)
 				if err != nil {
+					if !explicitClientSecret && !didRetrySecret && isInvalidClientErr(err) {
+						sec, ferr := st.forceFetchClientSecret(ctx, clientID)
+						if ferr != nil {
+							return err
+						}
+						req.ClientSecret = sec.Secret
+						didRetrySecret = true
+						continue
+					}
 					return err
 				}
 

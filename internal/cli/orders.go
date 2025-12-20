@@ -120,6 +120,15 @@ func newAuthedClient(st *state) (*foodora.Client, error) {
 			ClientSecret: sec.Secret,
 			ClientID:     st.cfg.OAuthClientID,
 		})
+		if err != nil && isInvalidClientErr(err) {
+			if sec2, ferr := st.forceFetchClientSecret(context.Background(), st.cfg.OAuthClientID); ferr == nil {
+				tok, err = c.OAuthTokenRefresh(context.Background(), foodora.OAuthRefreshRequest{
+					RefreshToken: st.cfg.RefreshToken,
+					ClientSecret: sec2.Secret,
+					ClientID:     st.cfg.OAuthClientID,
+				})
+			}
+		}
 		if err != nil {
 			return nil, err
 		}
