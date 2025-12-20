@@ -80,3 +80,12 @@ func parseAPITimeString(s string) (time.Time, error) {
 	}
 	return time.Time{}, lastErr
 }
+
+const ReorderTimeLayout = "2006-01-02T15:04:05-0700"
+
+func FormatReorderTime(t time.Time) string {
+	if t.IsZero() {
+		return ""
+	}
+	return t.Format(ReorderTimeLayout)
+}

@@ -126,3 +126,65 @@ type OrderHistoryRawData struct {
 	TotalCount FlexibleInt      `json:"total_count"`
 	Items      []map[string]any `json:"items"`
 }
+
+type CustomerAddressesResponse struct {
+	Status int                   `json:"status"`
+	Data   CustomerAddressesData `json:"data"`
+}
+
+type CustomerAddressesData struct {
+	Items []map[string]any `json:"items"`
+}
+
+type ReorderRequestBody struct {
+	Address     map[string]any `json:"address"`
+	ReorderTime string         `json:"reorder_time"`
+}
+
+type OrderReorderResponse struct {
+	Status int              `json:"status"`
+	Data   PastOrderDetails `json:"data"`
+}
+
+type PastOrderDetails struct {
+	Cart       ReorderCart        `json:"cart"`
+	VendorID   int                `json:"vendor_id"`
+	VendorCode string             `json:"vendor_code"`
+	VendorInfo *ReorderVendorInfo `json:"vendor_info"`
+}
+
+type ReorderVendorInfo struct {
+	Name     string `json:"name"`
+	Vertical string `json:"vertical"`
+	TimeZone string `json:"time_zone"`
+}
+
+type ReorderCart struct {
+	TotalValue float64             `json:"total_value"`
+	VendorCart []ReorderVendorCart `json:"vendor_cart"`
+}
+
+type ReorderVendorCart struct {
+	Products []ReorderCartProduct `json:"products"`
+}
+
+type ReorderCartProduct struct {
+	Name                string           `json:"name"`
+	VariationName       string           `json:"variation_name"`
+	Quantity            int              `json:"quantity"`
+	TotalPrice          float64          `json:"total_price"`
+	Price               float64          `json:"price"`
+	IsAvailable         bool             `json:"is_available"`
+	SoldOutOption       string           `json:"sold_out_option"`
+	SpecialInstructions string           `json:"special_instructions"`
+	Toppings            []ReorderTopping `json:"toppings"`
+}
+
+type ReorderTopping struct {
+	ID          int     `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	IsAvailable bool    `json:"is_available"`
+	Position    string  `json:"position"`
+	Price       float64 `json:"price"`
+}

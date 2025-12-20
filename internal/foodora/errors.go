@@ -32,6 +32,7 @@ var sensitiveJSONKeys = map[string]struct{}{
 	"mfa_token":     {},
 	"otp":           {},
 	"x-otp":         {},
+	"address":       {},
 }
 
 var sensitiveJSONValueRE = regexp.MustCompile(`(?i)(\"(?:access_token|refresh_token|client_secret|password|mfa_token|otp)\"\\s*:\\s*)\"[^\"]*\"`)

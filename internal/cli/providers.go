@@ -16,6 +16,7 @@ func newFoodoraCmd(st *state) *cobra.Command {
 	cmd.AddCommand(newOrdersCmd(st))
 	cmd.AddCommand(newHistoryCmd(st))
 	cmd.AddCommand(newOrderCmd(st))
+	cmd.AddCommand(newReorderCmd(st))
 	return cmd
 }
 

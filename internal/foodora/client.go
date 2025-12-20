@@ -179,6 +179,26 @@ func (c *Client) OrderHistoryByCode(ctx context.Context, req OrderHistoryByCodeR
 	return out, nil
 }
 
+func (c *Client) CustomerAddresses(ctx context.Context) (CustomerAddressesResponse, error) {
+	var out CustomerAddressesResponse
+	if err := c.getJSON(ctx, "customers/addresses", nil, &out); err != nil {
+		return out, err
+	}
+	return out, nil
+}
+
+func (c *Client) OrderReorder(ctx context.Context, orderCode string, body ReorderRequestBody) (OrderReorderResponse, error) {
+	var out OrderReorderResponse
+	if strings.TrimSpace(orderCode) == "" {
+		return out, errors.New("reorder: missing order code")
+	}
+	path := fmt.Sprintf("orders/%s/reorder", url.PathEscape(orderCode))
+	if err := c.postJSON(ctx, path, nil, body, &out); err != nil {
+		return out, err
+	}
+	return out, nil
+}
+
 type oauthHeaders struct {
 	otpMethod string
 	otpCode   string
@@ -266,6 +286,84 @@ func (c *Client) getJSON(ctx context.Context, path string, query url.Values, out
 	if err != nil {
 		return err
 	}
+	req.Header.Set("Accept", "application/json")
+	if c.userAgent != "" {
+		req.Header.Set("User-Agent", c.userAgent)
+	}
+	if c.originalUA != "" {
+		req.Header.Set("X-Original-User-Agent", c.originalUA)
+	}
+	if c.deviceID != "" {
+		req.Header.Set("X-Device", c.deviceID)
+		req.Header.Set("Device-Id", c.deviceID)
+	}
+	if c.cookieHeader != "" {
+		req.Header.Set("Cookie", c.cookieHeader)
+	}
+	if c.fpAPIKey != "" {
+		req.Header.Set("X-FP-API-KEY", c.fpAPIKey)
+	}
+	if c.appName != "" {
+		req.Header.Set("App-Name", c.appName)
+	}
+	if c.globalEntityID != "" {
+		req.Header.Set("X-Global-Entity-ID", c.globalEntityID)
+	}
+	if c.targetISO != "" {
+		req.Header.Set("X-Target-Country-Code-ISO", c.targetISO)
+	}
+	if c.accessToken != "" {
+		req.Header.Set("Authorization", "Bearer "+c.accessToken)
+	}
+
+	res, err := c.http.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(io.LimitReader(res.Body, 4<<20))
+	if err != nil {
+		return err
+	}
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		return &HTTPError{
+			Method:     req.Method,
+			URL:        req.URL.String(),
+			StatusCode: res.StatusCode,
+			Body:       body,
+		}
+	}
+
+	dec := json.NewDecoder(bytes.NewReader(body))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(out); err == nil {
+		return nil
+	}
+
+	// Fallback: tolerate API drift by decoding as lenient JSON.
+	if err := json.Unmarshal(body, out); err != nil {
+		return fmt.Errorf("%s: decode JSON: %w", path, err)
+	}
+	return nil
+}
+
+func (c *Client) postJSON(ctx context.Context, path string, query url.Values, in any, out any) error {
+	u := c.baseURL.ResolveReference(&url.URL{Path: path})
+	if query != nil && len(query) > 0 {
+		u.RawQuery = query.Encode()
+	}
+
+	b, err := json.Marshal(in)
+	if err != nil {
+		return fmt.Errorf("%s: encode JSON: %w", path, err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u.String(), bytes.NewReader(b))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 	if c.userAgent != "" {
 		req.Header.Set("User-Agent", c.userAgent)

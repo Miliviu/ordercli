@@ -119,6 +119,20 @@ If `session refresh` errors with “refresh token … not found”, that site se
 ./ordercli foodora order <orderCode>
 ```
 
+### Reorder (add to cart)
+
+Safe default (preview only):
+
+```sh
+./ordercli foodora reorder <orderCode>
+```
+
+Actually call `orders/{orderCode}/reorder` (adds to cart):
+
+```sh
+./ordercli foodora reorder <orderCode> --confirm
+```
+
 ## deliveroo (WIP)
 
 Requires a valid bearer token (no bypass):
