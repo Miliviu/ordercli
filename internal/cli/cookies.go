@@ -26,6 +26,7 @@ func newCookiesChromeCmd(st *state) *cobra.Command {
 	var cookiePath string
 	var timeout time.Duration
 	var filterNames []string
+	var sourceURL string
 
 	cmd := &cobra.Command{
 		Use:   "chrome",
@@ -39,7 +40,11 @@ func newCookiesChromeCmd(st *state) *cobra.Command {
 				return fmt.Errorf("failed to derive host from base_url=%q", st.cfg.BaseURL)
 			}
 
-			targetURL := st.cfg.BaseURL
+			targetURL := strings.TrimSpace(sourceURL)
+			if targetURL == "" {
+				targetURL = st.cfg.BaseURL
+			}
+
 			if u, err := url.Parse(targetURL); err == nil && u.Hostname() != "" && (u.Scheme == "http" || u.Scheme == "https") {
 				targetURL = u.Scheme + "://" + u.Hostname() + "/"
 			} else if !strings.HasPrefix(targetURL, "http://") && !strings.HasPrefix(targetURL, "https://") {
@@ -76,6 +81,7 @@ func newCookiesChromeCmd(st *state) *cobra.Command {
 
 	cmd.Flags().StringVar(&profile, "profile", "", "Chrome profile name (Default, Profile 1, ...) or path to profile dir")
 	cmd.Flags().StringVar(&cookiePath, "cookie-path", "", "explicit Cookies DB path or profile dir (overrides --profile)")
+	cmd.Flags().StringVar(&sourceURL, "url", "", "URL to load cookies from (default: base_url origin)")
 	cmd.Flags().StringSliceVar(&filterNames, "filter-name", nil, "cookie name to include (repeatable; default: all for target URL)")
 	cmd.Flags().DurationVar(&timeout, "timeout", 5*time.Second, "cookie read timeout (keychain prompts may need longer)")
 	return cmd

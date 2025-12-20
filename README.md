@@ -78,6 +78,12 @@ If you already solved bot protection / logged in in Chrome, you can import the c
 ./foodcli orders
 ```
 
+If the bot cookies live on the website domain (e.g. `https://www.foodora.at/`), import from there and store them for the API host:
+
+```sh
+./foodcli cookies chrome --url https://www.foodora.at/ --profile "Default"
+```
+
 If you have multiple profiles, try `--profile "Profile 1"` (or pass a profile path / Cookies DB via `--cookie-path`).
 
 ### Import session from Chrome (no password)

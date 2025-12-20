@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/steipete/foodcli/internal/config"
 	"github.com/steipete/foodcli/internal/foodora"
 	"github.com/steipete/foodcli/internal/version"
 )
@@ -135,6 +136,11 @@ func newAuthedClient(st *state) (*foodora.Client, error) {
 		st.cfg.AccessToken = tok.AccessToken
 		st.cfg.RefreshToken = tok.RefreshToken
 		st.cfg.ExpiresAt = tok.ExpiresAt(now)
+		if st.cfg.ExpiresAt.IsZero() {
+			if exp, ok := config.AccessTokenExpiresAt(tok.AccessToken); ok {
+				st.cfg.ExpiresAt = exp
+			}
+		}
 		st.markDirty()
 		c.SetAccessToken(tok.AccessToken)
 	}
