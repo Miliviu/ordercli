@@ -10,5 +10,6 @@
 - Interactive OTP prompt + retry (TTY)
 - Order tracking endpoints (`tracking/active-orders`, `tracking/orders/{orderCode}`)
 - Optional Playwright interactive login (`--browser`) + Cloudflare cookie capture (e.g. Austria/mjam)
+- Persistent Playwright profile support (`--browser-profile`)
 - `--config` flag works (use separate config files for testing)
 - OAuth `--client-id` override (e.g. `corp_android`)

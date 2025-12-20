@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -30,6 +31,7 @@ func newLoginCmd(st *state) *cobra.Command {
 	var clientID string
 	var waitForOTP bool
 	var otpTimeout time.Duration
+	var browserProfile string
 
 	cmd := &cobra.Command{
 		Use:   "login",
@@ -182,16 +184,27 @@ func newLoginCmd(st *state) *cobra.Command {
 	cmd.Flags().StringVar(&clientSecret, "client-secret", "", "oauth client secret (optional; otherwise auto-fetched)")
 	cmd.Flags().BoolVar(&storeClientSecret, "store-client-secret", false, "persist --client-secret into config file")
 	cmd.Flags().BoolVar(&browser, "browser", false, "use an interactive Playwright browser session (helps with Cloudflare)")
+	cmd.Flags().StringVar(&browserProfile, "browser-profile", "", "persistent Playwright profile dir (keeps cookies/storage between runs)")
 	return cmd
 }
 
 func oauthPassword(ctx context.Context, st *state, cmd *cobra.Command, browser bool, req foodora.OAuthPasswordRequest) (foodora.AuthToken, *foodora.MfaChallenge, error) {
 	if browser {
+		profileDir := strings.TrimSpace(cmd.Flag("browser-profile").Value.String())
+		if profileDir == "" {
+			profileDir = filepath.Join(filepath.Dir(st.configPath), "browser-profile")
+		}
 		tok, mfa, sess, err := browserauth.OAuthTokenPassword(ctx, req, browserauth.PasswordOptions{
 			BaseURL:   st.cfg.BaseURL,
 			DeviceID:  st.cfg.DeviceID,
 			Timeout:   10 * time.Minute,
 			LogWriter: cmd.ErrOrStderr(),
+			ProfileDir: func() string {
+				if profileDir == "" {
+					return ""
+				}
+				return profileDir
+			}(),
 		})
 		if err != nil {
 			return foodora.AuthToken{}, nil, err

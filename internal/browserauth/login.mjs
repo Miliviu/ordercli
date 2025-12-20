@@ -65,23 +65,63 @@ function perimeterXBlockURL(baseURL, body) {
   return '';
 }
 
+function perimeterXHTML(baseURL, body) {
+  const origin = new URL(baseURL).origin;
+  const scriptURL = perimeterXBlockURL(baseURL, body);
+  if (!scriptURL) return '';
+  return `<!doctype html>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>foodcli — verification</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; background: #0b0f14; color: #e8eef7; }
+  header { padding: 16px 18px; border-bottom: 1px solid rgba(232,238,247,0.10); }
+  h1 { margin: 0; font-size: 14px; font-weight: 650; letter-spacing: .2px; }
+  p { margin: 10px 0 0; color: rgba(232,238,247,0.80); }
+  main { padding: 18px; }
+  .box { border: 1px solid rgba(232,238,247,0.12); border-radius: 12px; padding: 16px; background: rgba(255,255,255,0.03); }
+  code { color: #9ad1ff; }
+</style>
+<base href="${origin}/" />
+<header>
+  <h1>foodcli verification</h1>
+  <p>Complete the verification below. Once cleared, foodcli will continue automatically.</p>
+</header>
+<main>
+  <div class="box">
+    <p>Domain: <code>${origin}</code></p>
+    <p>If this stays blank, open <code>${origin}</code> in the same window and try again.</p>
+  </div>
+  <script src="${scriptURL}"></script>
+</main>
+`;
+}
+
 const input = await readStdinJSON();
 const timeoutMillis = Math.max(10_000, Number(input.timeout_millis || 0));
 const deadline = Date.now() + timeoutMillis;
 
-const browser = await chromium.launch({ headless: false });
-const context = await browser.newContext();
+let browser = null;
+let context = null;
+if (input.profile_dir) {
+  // Persistent profile: keeps cookies/storage between runs.
+  context = await chromium.launchPersistentContext(input.profile_dir, { headless: false });
+} else {
+  browser = await chromium.launch({ headless: false });
+  context = await browser.newContext();
+}
 const page = await context.newPage();
 
 try {
-  // Intentional: let the user complete any Cloudflare/PerimeterX checks in a real browser.
-  // Use origin (not /api/v5/) so challenge pages can render.
-  await page.goto(new URL(input.base_url).origin, { waitUntil: 'domcontentloaded' }).catch(() => {});
+  // Keep the visible tab clean; we’ll render a helpful “verification” page only when blocked.
+  await page.goto('about:blank', { waitUntil: 'domcontentloaded' }).catch(() => {});
 
   const url = oauthURL(input.base_url);
+  const origin = new URL(input.base_url).origin;
 
   let lastLog = 0;
-  // Loop until the oauth call stops returning Cloudflare HTML (user solved the check), or timeout.
+  // Loop until the oauth call stops returning challenge responses (user solved the check), or timeout.
   while (Date.now() < deadline) {
     const res = await context.request.post(url, {
       form: {
@@ -110,10 +150,18 @@ try {
         lastLog = Date.now();
         process.stderr.write('waiting for browser clearance (solve the challenge in the opened window)...\n');
       }
-      const pxURL = perimeterXBlockURL(input.base_url, body);
-      if (pxURL) {
-        await page.goto(pxURL, { waitUntil: 'domcontentloaded' }).catch(() => {});
+
+      if (isPerimeterXBlocked(status, headers, body)) {
+        const html = perimeterXHTML(input.base_url, body);
+        if (html) {
+          await page.setContent(html, { waitUntil: 'domcontentloaded' }).catch(() => {});
+        } else {
+          await page.goto(origin, { waitUntil: 'domcontentloaded' }).catch(() => {});
+        }
+      } else {
+        await page.goto(origin, { waitUntil: 'domcontentloaded' }).catch(() => {});
       }
+
       await sleep(1500);
       continue;
     }
@@ -133,16 +181,19 @@ try {
       }),
       'utf8',
     );
-    await browser.close();
+    await context.close().catch(() => {});
+    if (browser) await browser.close().catch(() => {});
     process.exit(0);
   }
 
   process.stderr.write('timeout waiting for browser clearance\n');
-  await browser.close();
+  await context.close().catch(() => {});
+  if (browser) await browser.close().catch(() => {});
   process.exit(3);
 } catch (e) {
   try {
-    await browser.close();
+    await context.close().catch(() => {});
+    if (browser) await browser.close().catch(() => {});
   } catch {}
   process.stderr.write(String(e?.stack || e) + '\n');
   process.exit(1);

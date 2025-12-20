@@ -63,6 +63,12 @@ Use an interactive Playwright session (you solve the challenge in the opened bro
 
 Prereqs: `node` + `npx` available. First run may download Playwright + Chromium.
 
+Tip: use a persistent profile to keep browser cookies/storage between runs (reduces re-challenges):
+
+```sh
+./foodcli login --email you@example.com --password-stdin --browser --browser-profile "$HOME/Library/Application Support/foodcli/browser-profile"
+```
+
 ## Orders
 
 ```sh

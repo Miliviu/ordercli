@@ -36,6 +36,7 @@ type PasswordOptions struct {
 	Timeout    time.Duration
 	LogWriter  io.Writer
 	Playwright string
+	ProfileDir string
 }
 
 func OAuthTokenPassword(ctx context.Context, req foodora.OAuthPasswordRequest, opts PasswordOptions) (foodora.AuthToken, *foodora.MfaChallenge, Session, error) {
@@ -94,6 +95,7 @@ func OAuthTokenPassword(ctx context.Context, req foodora.OAuthPasswordRequest, o
 		OTPCode:       req.OTPCode,
 		MfaToken:      req.MfaToken,
 		TimeoutMillis: int(timeout.Milliseconds()),
+		ProfileDir:    strings.TrimSpace(opts.ProfileDir),
 	}
 	b, _ := json.Marshal(in)
 
@@ -204,6 +206,7 @@ type scriptInput struct {
 	OTPCode       string `json:"otp_code"`
 	MfaToken      string `json:"mfa_token"`
 	TimeoutMillis int    `json:"timeout_millis"`
+	ProfileDir    string `json:"profile_dir"`
 }
 
 type scriptOutput struct {
