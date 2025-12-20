@@ -127,10 +127,16 @@ Safe default (preview only):
 ./ordercli foodora reorder <orderCode>
 ```
 
-Actually call `orders/{orderCode}/reorder` (adds to cart):
+Actually call `orders/{orderCode}/reorder` (adds to cart; does not place an order):
 
 ```sh
 ./ordercli foodora reorder <orderCode> --confirm
+```
+
+If you have multiple saved addresses, you must pick one:
+
+```sh
+./ordercli foodora reorder <orderCode> --confirm --address-id <id>
 ```
 
 ## deliveroo (WIP)

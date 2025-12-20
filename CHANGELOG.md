@@ -14,5 +14,6 @@
 - Persistent Playwright profile support (`--browser-profile`)
 - `--config` flag works (use separate config files for testing)
 - OAuth `--client-id` override (e.g. `corp_android`)
-- Reorder: preview + `orders/{orderCode}/reorder` (adds to cart; requires `--confirm`)
+- Reorder: preview by default; `orders/{orderCode}/reorder` with `--confirm` (adds to cart; address selectable)
 - Deliveroo (basic/WIP): `deliveroo history` (requires `DELIVEROO_BEARER_TOKEN`)
+- Tests: reorder + redaction regressions
